@@ -209,6 +209,9 @@
     .form .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
     .form .btn[disabled]:hover { background: var(--brass); color: var(--ink); }
     .form-status { font-size: 13.5px; color: var(--muted); }
+    .form-status.ok { color: var(--brass); }
+    .form-status.err { color: #d98b8b; }
+    .form { position: relative; }
     @media (max-width: 900px) { .contact { grid-template-columns: 1fr; gap: 40px; } }
     @media (max-width: 560px) { .form .row { grid-template-columns: 1fr; } .form { padding: 28px 22px; } }
 
@@ -489,11 +492,15 @@
             <p class="lede">Questions, ideas for a conversation, interest in future sessions or workshops: she'd like to hear from you.</p>
             <p class="lede">Every message is read personally and kept private.</p>
             <div class="contact-meta">
-              <div><span>Email</span>Coming soon</div>
+              <div><span>Email</span><a href="mailto:hello@thefreakgene.com" style="color:var(--bone);text-decoration-color:var(--brass);text-underline-offset:3px">hello@thefreakgene.com</a></div>
               <div><span>Response time</span>Usually within a few days</div>
             </div>
           </div>
-          <form class="form reveal" aria-describedby="form-status" onsubmit="return false;">
+          <form class="form reveal" id="contact-form" aria-describedby="form-status" novalidate>
+            <div style="position:absolute;left:-9999px" aria-hidden="true">
+              <label for="c-company">Company</label>
+              <input id="c-company" name="company" type="text" tabindex="-1" autocomplete="off">
+            </div>
             <div class="row">
               <div>
                 <label for="c-name">Name</label>
@@ -518,8 +525,9 @@
               <label for="c-message">Message</label>
               <textarea id="c-message" name="message" placeholder="Take your time. There are no wrong questions."></textarea>
             </div>
-            <button class="btn" type="submit" disabled>Send message</button>
-            <p class="form-status" id="form-status">The contact form opens soon. Messages can't be sent just yet.</p>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAF9LSeEhG6n0ZZJr" data-theme="dark"></div>
+            <button class="btn" type="submit">Send message</button>
+            <p class="form-status" id="form-status" role="status" aria-live="polite">Messages go straight to Cassidy and stay private.</p>
           </form>
         </div>
       </div>
@@ -571,6 +579,50 @@
     })();
 
     document.getElementById('yr').textContent = new Date().getFullYear();
+  </script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script>
+    // Contact form -> Cloudflare Worker "thefreakgene-contact" -> thefreakgene@gmail.com
+    (function () {
+      var form = document.getElementById('contact-form');
+      if (!form) return;
+      var status = document.getElementById('form-status');
+      var btn = form.querySelector('button[type="submit"]');
+      function say(msg, cls) { status.textContent = msg; status.className = 'form-status' + (cls ? ' ' + cls : ''); }
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var fd = new FormData(form);
+        var data = {
+          name: (fd.get('name') || '').trim(),
+          email: (fd.get('email') || '').trim(),
+          topic: fd.get('topic'),
+          message: (fd.get('message') || '').trim(),
+          company: fd.get('company'),
+          token: fd.get('cf-turnstile-response')
+        };
+        if (!data.name || !data.message || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+          return say('Please add your name, a valid email and a message.', 'err');
+        }
+        if (!data.token) return say('One moment, the spam check is still loading. Try again in a few seconds.', 'err');
+        btn.disabled = true; btn.textContent = 'Sending…'; say('');
+        try {
+          var r = await fetch('https://thefreakgene-contact.dan-nanni.workers.dev', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+          });
+          var res = await r.json().catch(function () { return {}; });
+          if (r.ok && res.ok) {
+            form.reset();
+            say('Thank you. Your message is on its way to Cassidy.', 'ok');
+          } else {
+            say(res.error || 'Sorry, something went wrong. Please email hello@thefreakgene.com instead.', 'err');
+          }
+        } catch (err) {
+          say('Sorry, something went wrong. Please email hello@thefreakgene.com instead.', 'err');
+        }
+        if (window.turnstile) turnstile.reset();
+        btn.disabled = false; btn.textContent = 'Send message';
+      });
+    })();
   </script>
 </body>
 </html>
