@@ -190,6 +190,28 @@
     .closing h2 { max-width: 18ch; margin: 18px auto 22px; }
     .closing .lede { margin: 0 auto; }
 
+    /* Contact */
+    .contact { display: grid; grid-template-columns: 1fr 1.2fr; gap: 72px; align-items: start; }
+    .contact .lede + .lede { margin-top: 1em; }
+    .contact-meta { margin-top: 32px; display: grid; gap: 14px; font-size: 15px; color: var(--bone-dim); }
+    .contact-meta span { display: block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brass); margin-bottom: 2px; }
+    .form { display: grid; gap: 18px; padding: 40px 36px; border: 1px solid var(--line); background: var(--ink-3); }
+    .form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form label { display: block; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+    .form input, .form select, .form textarea {
+      width: 100%; font: inherit; font-size: 15.5px; color: var(--bone);
+      background: var(--ink); border: 1px solid var(--line); padding: 13px 14px; border-radius: 0;
+      transition: border-color .2s;
+    }
+    .form select { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--brass) 50%), linear-gradient(135deg, var(--brass) 50%, transparent 50%); background-position: calc(100% - 20px) 55%, calc(100% - 15px) 55%; background-size: 5px 5px; background-repeat: no-repeat; }
+    .form textarea { min-height: 140px; resize: vertical; }
+    .form input:focus, .form select:focus, .form textarea:focus { outline: none; border-color: var(--brass); }
+    .form .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+    .form .btn[disabled]:hover { background: var(--brass); color: var(--ink); }
+    .form-status { font-size: 13.5px; color: var(--muted); }
+    @media (max-width: 900px) { .contact { grid-template-columns: 1fr; gap: 40px; } }
+    @media (max-width: 560px) { .form .row { grid-template-columns: 1fr; } .form { padding: 28px 22px; } }
+
     footer { border-top: 1px solid var(--line); padding: 40px 0 48px; font-size: 13.5px; color: var(--muted); }
     footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
     footer p { max-width: 70ch; }
@@ -214,6 +236,7 @@
           <li><a href="#conversations">Conversations</a></li>
           <li><a href="#practice">Safe Practice</a></li>
           <li><a href="#library">Library</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
       </nav>
     </div>
@@ -454,6 +477,51 @@
         <p class="eyebrow">The responsibility</p>
         <h2>Curiosity is the gift. <em>Care</em> is the practice.</h2>
         <p class="lede">The Freak Gene is just getting started. More conversations, guides and services are on the way.</p>
+      </div>
+    </section>
+
+    <section id="contact" class="alt">
+      <div class="wrap">
+        <div class="contact">
+          <div class="reveal">
+            <p class="eyebrow">Contact</p>
+            <h2>Reach out to <em>Cassidy.</em></h2>
+            <p class="lede">Questions, ideas for a conversation, interest in future sessions or workshops: she'd like to hear from you.</p>
+            <p class="lede">Every message is read personally and kept private.</p>
+            <div class="contact-meta">
+              <div><span>Email</span>Coming soon</div>
+              <div><span>Response time</span>Usually within a few days</div>
+            </div>
+          </div>
+          <form class="form reveal" aria-describedby="form-status" onsubmit="return false;">
+            <div class="row">
+              <div>
+                <label for="c-name">Name</label>
+                <input id="c-name" name="name" type="text" autocomplete="name" placeholder="What should she call you?">
+              </div>
+              <div>
+                <label for="c-email">Email</label>
+                <input id="c-email" name="email" type="email" autocomplete="email" placeholder="you@example.com">
+              </div>
+            </div>
+            <div>
+              <label for="c-topic">Topic</label>
+              <select id="c-topic" name="topic">
+                <option>General question</option>
+                <option>Future sessions</option>
+                <option>Workshops &amp; talks</option>
+                <option>Conversation idea</option>
+                <option>Something else</option>
+              </select>
+            </div>
+            <div>
+              <label for="c-message">Message</label>
+              <textarea id="c-message" name="message" placeholder="Take your time. There are no wrong questions."></textarea>
+            </div>
+            <button class="btn" type="submit" disabled>Send message</button>
+            <p class="form-status" id="form-status">The contact form opens soon. Messages can't be sent just yet.</p>
+          </form>
+        </div>
       </div>
     </section>
   </main>
